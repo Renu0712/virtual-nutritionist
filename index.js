@@ -245,13 +245,14 @@ connectToDatabase().then((connectedClient) => {
             res.status(500).json({ message: 'Error deleting messages' });
         }
     });
-});
 
+    
 app.post('/nutitions', async (req, res) => {
-    const { userId, datetime, nutitions_entry } = req.body;
+    const { userId, title, nutitions_entry } = req.body;
+    const datetime = Datetime.now();
     try {
         const nutrittionCollection = connectedClient.db('virtual-nutritionist-app').collection("nutitions");
-        const result = await nutrittionCollection.insertOne({ userId, datetime, nutitions_entry });
+        const result = await nutrittionCollection.insertOne({ userId, title, datetime:datetime, nutitions_entry });
         res.status(201).json({ message: 'Journal entry created', entryId: result.insertedId });
     } catch (error) {
         console.error("Error creating nutitions entry:", error);
@@ -262,10 +263,11 @@ app.post('/nutitions', async (req, res) => {
 
 app.put('/nutitions/:entryId', async (req, res) => {
     const { entryId } = req.params;
-    const { userId, datetime, nutitions_entry } = req.body;
+    const datetime = Datetime.now();
+    const { userId, title, nutitions_entry } = req.body;
     try {
         const nutrittionCollection = connectedClient.db('virtual-nutritionist-app').collection("nutitions");
-        const result = await nutrittionCollection.updateOne({ _id: new ObjectId(entryId) }, { $set: { userId, datetime, nutitions_entry } });
+        const result = await nutrittionCollection.updateOne({ _id: new ObjectId(entryId) }, { $set: { userId, title, datetime: datetime, nutitions_entry } });
         if (result.matchedCount === 0) {
             return res.status(404).json({ message: 'Journal entry not found' });
         }
@@ -304,6 +306,8 @@ app.delete('/nutitions/:entryId', async (req, res) => {
         res.status(500).json({ message: 'Error deleting nutitions entry' });
     }
 });
+});
+
 
 
 
